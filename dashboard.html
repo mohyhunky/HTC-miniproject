@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BCA Project Studio &bull; AI Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: #030712;
+      color: #f3f4f6;
+      min-height: 100vh;
+    }
+
+    /* --- AUTH MODAL --- */
+    #authOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 16px;
+    }
+
+    .auth-box {
+      width: 100%;
+      max-width: 440px;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      background: #ffffff;
+    }
+
+    .auth-top-header {
+      background: #111827;
+      padding: 24px 20px;
+      text-align: center;
+      color: white;
+    }
+
+    .auth-top-header h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .auth-top-header p {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .auth-body {
+      background: #ffffff;
+      padding: 24px 28px 30px;
+      color: #111827;
+    }
+
+    .tab-switch {
+      display: flex;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 22px;
+    }
+
+    .tab-item {
+      flex: 1;
+      text-align: center;
+      padding: 10px 0;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      color: #6b7280;
+      transition: all 0.2s;
+    }
+
+    .tab-item.active {
+      color: #2563eb;
+      border-bottom: 2px solid #2563eb;
+      margin-bottom: -2px;
+    }
+
+    .auth-form-group {
+      margin-bottom: 16px;
+    }
+
+    .auth-form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .auth-form-group input {
+      width: 100%;
+      padding: 11px 14px;
+      background: #f9fafb;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      color: #111827;
+      outline: none;
+    }
+
+    .auth-form-group input:focus {
+      border-color: #2563eb;
+      background: #ffffff;
+    }
+
+    .auth-submit-btn {
+      width: 100%;
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+
+    .auth-submit-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .auth-status-msg {
+      font-size: 0.8rem;
+      margin-top: 10px;
+      text-align: center;
+      min-height: 18px;
+    }
+
+    /* --- DASHBOARD & SPLIT-SCREEN --- */
+    .top-nav {
+      height: 60px;
+      background: #0b0f19;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+    }
+
+    .nav-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #f3f4f6;
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-pill {
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid #334155;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+    }
+
+    .signout-btn {
+      background: #7f1d1d;
+      color: #fecaca;
+      border: 1px solid #991b1b;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 46% 54%;
+      height: calc(100vh - 60px);
+      overflow: hidden;
+    }
+
+    .left-editor {
+      padding: 28px;
+      overflow-y: auto;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .stepper-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+      background: #0f172a;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid #1e293b;
+    }
+
+    .step-badge {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .step-badge.active {
+      color: #60a5fa;
+    }
+
+    .step-header h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .step-header p {
+      font-size: 0.82rem;
+      color: #9ca3af;
+      margin-top: 2px;
+      margin-bottom: 20px;
+    }
+
+    .editor-group {
+      margin-bottom: 18px;
+    }
+
+    .editor-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #d1d5db;
+      margin-bottom: 6px;
+    }
+
+    .editor-group input, .editor-group textarea {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: #ffffff;
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    .editor-group input:focus, .editor-group textarea:focus {
+      border-color: #3b82f6;
+    }
+
+    .gemini-pill-btn {
+      background: #1e1b4b;
+      border: 1px solid #4338ca;
+      color: #c7d2fe;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      display: inline-block;
+    }
+
+    .metrics-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    /* --- CLEAN, FULL-WIDTH STACKED MODULE CARDS --- */
+    .module-card {
+      background: #0d1527;
+      border: 1px solid #1e293b;
+      border-left: 4px solid #3b82f6;
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .module-card-header {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #60a5fa;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .module-input-group {
+      margin-bottom: 12px;
+    }
+
+    .module-input-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .module-input-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 5px;
+    }
+
+    .module-input-group input,
+    .module-input-group textarea {
+      width: 100% !important;
+      box-sizing: border-box !important;
+      display: block !important;
+      background: #030712 !important;
+      border: 1px solid #1f2937 !important;
+      border-radius: 8px !important;
+      padding: 10px 14px !important;
+      color: #ffffff !important;
+      font-size: 0.88rem !important;
+      outline: none;
+      resize: vertical;
+    }
+
+    .module-input-group input:focus,
+    .module-input-group textarea:focus {
+      border-color: #3b82f6 !important;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    .action-btn-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+    }
+
+    .btn-blue {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+
+    .btn-blue:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-secondary {
+      background: #1e293b;
+      color: #cbd5e1;
+      border: 1px solid #334155;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+
+    .right-preview {
+      background: #090d16;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .preview-header-bar {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 0.78rem;
+    }
+
+    .active-pill {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    /* A4 Paper Styling */
+    .a4-paper {
+      width: 100%;
+      max-width: 580px;
+      background: #ffffff !important;
+      color: #000000 !important;
+      padding: 36px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      font-family: 'Times New Roman', Times, serif;
+    }
+
+    .a4-paper * {
+      color: #000000 !important;
+    }
+
+    .paper-top {
+      text-align: center;
+      border-bottom: 2px solid #000;
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+    }
+
+    .paper-title h3 {
+      font-size: 1.15rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .paper-title p {
+      font-size: 0.82rem;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .paper-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      border-bottom: 1px solid #000;
+      padding-bottom: 8px;
+      margin-bottom: 14px;
+    }
+
+    .paper-section {
+      margin-bottom: 12px;
+    }
+
+    .paper-section h4 {
+      font-size: 0.85rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      border-bottom: 1px solid #000;
+      margin-bottom: 4px;
+      padding-bottom: 2px;
+    }
+
+    .paper-section p {
+      font-size: 0.82rem;
+      line-height: 1.4;
+      text-align: justify;
+    }
+
+    .paper-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 6px;
+    }
+
+    .paper-table th, .paper-table td {
+      border: 1px solid #000;
+      padding: 6px 8px;
+      font-size: 0.78rem;
+      text-align: left;
+    }
+
+    .paper-table th {
+      background: #f3f4f6;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. POPUP AUTH MODAL -->
+  <div id="authOverlay">
+    <div class="auth-box">
+      <div class="auth-top-header">
+        <h2>Project Portal</h2>
+        <p>Mini Project Submission System</p>
+      </div>
+
+      <div class="auth-body">
+        <div class="tab-switch">
+          <div class="tab-item" id="tabLogin" onclick="setAuthMode('login')">Login</div>
+          <div class="tab-item active" id="tabRegister" onclick="setAuthMode('register')">Register</div>
+        </div>
+
+        <form id="authForm" onsubmit="submitAuth(event)">
+          <div class="auth-form-group" id="nameWrapper">
+            <label> Username </label>
+            <input type="text" id="regName" placeholder=" " />
+          </div>
+
+          <div class="auth-form-group">
+            <label>Email Address</label>
+            <input type="email" id="authEmail" required placeholder="student@college.edu" />
+          </div>
+
+          <div class="auth-form-group">
+            <label id="pwdLabel">Create Password</label>
+            <input type="password" id="authPassword" required placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" />
+          </div>
+
+          <button type="submit" class="auth-submit-btn" id="authBtn">Create Account</button>
+          <div id="authMsg" class="auth-status-msg"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. MAIN SPLIT-SCREEN DASHBOARD -->
+  <nav class="top-nav">
+    <div class="nav-title">
+      <span>&star; BCA Project Studio &bull; AI Suite</span>
+    </div>
+    <div class="nav-controls">
+      <div class="user-pill" id="userBadge">Logged in: student</div>
+      <button class="signout-btn" onclick="openAuthModal()">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="main-grid">
+    <!-- Left Edit Form -->
+    <div class="left-editor">
+      
+      <!-- Stepper Indicator -->
+      <div class="stepper-header">
+        <span class="step-badge active" id="badgeStep1" onclick="switchStep(1)">1. Metadata</span>
+        <span>&bull;</span>
+        <span class="step-badge" id="badgeStep2" onclick="switchStep(2)">2. Dynamic Modules</span>
+        <span>&bull;</span>
+        <span class="step-badge" id="badgeStep3" onclick="switchStep(3)">3. Survey & Export</span>
+      </div>
+
+      <!-- STEP 1: METADATA -->
+      <div id="stepSection1">
+        <div class="step-header">
+          <h2>Step 1: Project Metadata</h2>
+          <p>Define core title, abstract problem statement, and scope.</p>
+        </div>
+
+        <div class="editor-group">
+          <label>Project Title</label>
+          <input type="text" id="inTitle" value="Smart Project Submission Portal" placeholder="e.g. AI-Driven Smart Identity Verification" oninput="liveUpdate()" />
+        </div>
+
+        <div class="editor-group">
+          <label>Abstract</label>
+          <textarea id="inAbstract" rows="4" placeholder="Draft your project synopsis abstract here..." oninput="handleWordCount(); liveUpdate();">A modernized, distributed platform for managing academic project proposals, dynamic module workflows, and automated synopsis compilation.</textarea>
+          <div>
+            <button type="button" class="gemini-pill-btn" onclick="polishWithGemini(event)">
+              ✨ Polish Abstract with Gemini
+            </button>
+          </div>
+          <div class="metrics-row">
+            <span id="wordBadge">Words: 17</span>
+            <span id="toneBadge">Tone: Draft</span>
+          </div>
+        </div>
+
+        <div class="editor-group">
+          <label>Detailed Description & Architecture</label>
+          <textarea id="inDesc" rows="4" placeholder="Mention system architecture, technologies, methodology..." oninput="liveUpdate()">The system utilizes an asynchronous Express runtime backed by secure session layers. Dynamic DOM trees render module cards while client-side rasterizers compile structured A4 reports.</textarea>
+        </div>
+
+        <div class="action-btn-row">
+          <div></div>
+          <button type="button" class="btn-blue" onclick="switchStep(2)">Continue to Modules &rarr;</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: DYNAMIC MODULES -->
+      <div id="stepSection2" style="display: none;">
+        <div class="step-header">
+          <h2>Step 2: Dynamic Project Modules</h2>
+          <p>Specify and architect the sub-components of your project.</p>
+        </div>
+
+        <div class="editor-group">
+          <label>Number of Modules</label>
+          <input type="number" id="inModCount" min="1" max="8" value="3" oninput="buildModuleInputs()" />
+          <div>
+            <button type="button" class="gemini-pill-btn" onclick="suggestModulesWithGemini(event)">
+              ⚡ Suggest Modules with Gemini
+            </button>
+          </div>
+        </div>
+
+        <div id="moduleCardsArea"></div>
+
+        <div class="action-btn-row">
+          <button type="button" class="btn-secondary" onclick="switchStep(1)">&larr; Back to Metadata</button>
+          <button type="button" class="btn-blue" onclick="switchStep(3)">Continue to Survey &rarr;</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: LITERATURE SURVEY & SIGN-OFF -->
+      <div id="stepSection3" style="display: none;">
+        <div class="step-header">
+          <h2>Step 3: Literature Survey & Sign-Off</h2>
+          <p>Provide references, background research, and compile the official A4 document.</p>
+        </div>
+
+        <div class="editor-group">
+          <label>Literature Survey & Prior Works</label>
+          <textarea id="inSurvey" rows="5" placeholder="Mention surveyed papers, algorithms, comparative results..." oninput="liveUpdate()">Evaluated comparative models in client-side document rendering and JSON database persistence across low-resource academic hosting environments.</textarea>
+        </div>
+
+        <div class="action-btn-row">
+          <button type="button" class="btn-secondary" onclick="switchStep(2)">&larr; Back to Modules</button>
+          <button type="button" class="btn-blue" onclick="downloadA4PDF()">Download Official PDF Report</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Virtual Paper -->
+    <div class="right-preview">
+      <div class="preview-header-bar">
+        <span class="active-pill">&bull; Real-Time Paper Typesetter Active</span>
+        <span style="color: #94a3b8;">A4 Preview Standard</span>
+      </div>
+
+      <div class="a4-paper" id="paperExport">
+        <div class="paper-top">
+          <div class="paper-title">
+            <h3>DEPARTMENT OF COMPUTER APPLICATIONS</h3>
+            <p>BACHELOR OF COMPUTER APPLICATIONS &bull; SEMESTER MINI PROJECT SYNOPSIS</p>
+          </div>
+        </div>
+
+        <div class="paper-meta">
+          <div>
+            <strong>Candidate:</strong> <span id="outCandidate">mohammed ashick rahman</span>
+          </div>
+          <div>
+            <strong>Submission Date:</strong> <span id="outDate">25/09/2026</span>
+          </div>
+        </div>
+
+        <div class="paper-section">
+          <h4>PROJECT TITLE</h4>
+          <p style="font-weight: bold;" id="outTitle">Smart Project Submission Portal</p>
+        </div>
+
+        <div class="paper-section">
+          <h4>1. ABSTRACT</h4>
+          <p id="outAbstract">A modernized, distributed platform for managing academic project proposals, dynamic module workflows, and automated synopsis compilation.</p>
+        </div>
+
+        <div class="paper-section">
+          <h4>2. TECHNICAL SCOPE & ARCHITECTURE</h4>
+          <p id="outDesc">The system utilizes an asynchronous Express runtime backed by secure session layers. Dynamic DOM trees render module cards while client-side rasterizers compile structured A4 reports.</p>
+        </div>
+
+        <div class="paper-section">
+          <h4>3. DYNAMIC MODULE BREAKDOWN</h4>
+          <table class="paper-table">
+            <thead>
+              <tr>
+                <th style="width: 14%;">Mod #</th>
+                <th style="width: 38%;">Module Designation</th>
+                <th style="width: 48%;">Functional Scope & Engineering Details</th>
+              </tr>
+            </thead>
+            <tbody id="outModuleRows">
+              <tr>
+                <td>1</td>
+                <td><strong>Identity Authentication & Local Persistence Layer</strong></td>
+                <td>Enforces salted cryptographic password hashing via bcryptjs, manages session states, and guarantees persistence using serialized flat-file JSON storage.</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><strong>Generative AI Prompt Orchestration Subsystem</strong></td>
+                <td>Integrates Google Gemini to evaluate problem statements, polish academic abstracts, and dynamically architect project modules via structured JSON schemas.</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><strong>Client-Side Document Typesetting & Vector PDF Engine</strong></td>
+                <td>Implements real-time bi-directional DOM synchronization with a virtual A4 layout and renders print-ready vector PDF documentation using client-side rasterization.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="paper-section" style="margin-top: 14px;">
+          <h4>4. LITERATURE SURVEY</h4>
+          <p id="outSurvey">Evaluated comparative models in client-side document rendering and JSON database persistence across low-resource academic hosting environments.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let authMode = 'register';
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedUser = localStorage.getItem('activeCandidateName');
+      if (savedUser) {
+        document.getElementById('authOverlay').style.display = 'none';
+        applyUserData(savedUser);
+      } else {
+        document.getElementById('authOverlay').style.display = 'flex';
+      }
+      buildModuleInputs();
+      liveUpdate();
+    });
+
+    // Step Switcher
+    function switchStep(stepNum) {
+      document.getElementById('stepSection1').style.display = stepNum === 1 ? 'block' : 'none';
+      document.getElementById('stepSection2').style.display = stepNum === 2 ? 'block' : 'none';
+      document.getElementById('stepSection3').style.display = stepNum === 3 ? 'block' : 'none';
+
+      document.getElementById('badgeStep1').classList.toggle('active', stepNum === 1);
+      document.getElementById('badgeStep2').classList.toggle('active', stepNum === 2);
+      document.getElementById('badgeStep3').classList.toggle('active', stepNum === 3);
+    }
+
+    // Dynamic Module Input Generator with Stacked Full-Width Layout
+    function buildModuleInputs(customArray = null) {
+      const countInput = document.getElementById('inModCount');
+      let count = parseInt(countInput.value, 10) || 3;
+      if (customArray) {
+        count = customArray.length;
+        countInput.value = count;
+      }
+
+      const area = document.getElementById('moduleCardsArea');
+      area.innerHTML = '';
+
+      const defaults = [
+        { 
+          title: "Identity Authentication & Local Persistence Layer", 
+          desc: "Enforces salted cryptographic password hashing via bcryptjs, manages session states, and guarantees persistence using serialized flat-file JSON storage." 
+        },
+        { 
+          title: "Generative AI Prompt Orchestration Subsystem", 
+          desc: "Integrates Google Gemini to evaluate problem statements, polish academic abstracts, and dynamically architect project modules via structured JSON schemas." 
+        },
+        { 
+          title: "Client-Side Document Typesetting & Vector PDF Engine", 
+          desc: "Implements real-time bi-directional DOM synchronization with a virtual A4 layout and renders print-ready vector PDF documentation using client-side rasterization." 
+        }
+      ];
+
+      for (let i = 1; i <= count; i++) {
+        const tVal = customArray ? customArray[i - 1].title : (defaults[i - 1] ? defaults[i - 1].title : `Module ${i} Subsystem`);
+        const dVal = customArray ? customArray[i - 1].desc : (defaults[i - 1] ? defaults[i - 1].desc : `Functional scope and operational pipeline for Module ${i}.`);
+
+        const card = document.createElement('div');
+        card.className = 'module-card';
+        card.innerHTML = `
+          <div class="module-card-header">Module ${i} Definition</div>
+          <div class="module-input-group">
+            <label>Module Title</label>
+            <input type="text" class="mod-title-inp" value="${tVal}" placeholder="e.g. Identity Authentication Layer" oninput="liveUpdate()" />
+          </div>
+          <div class="module-input-group">
+            <label>Functional Scope & Engineering Details</label>
+            <textarea rows="3" class="mod-desc-inp" placeholder="Describe functionality, algorithms, and scope..." oninput="liveUpdate()">${dVal}</textarea>
+          </div>
+        `;
+        area.appendChild(card);
+      }
+      liveUpdate();
+    }
+
+    function setAuthMode(mode) {
+      authMode = mode;
+      document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+      document.getElementById('tabRegister').classList.toggle('active', mode === 'register');
+      document.getElementById('nameWrapper').style.display = mode === 'register' ? 'block' : 'none';
+      document.getElementById('pwdLabel').textContent = mode === 'register' ? 'Create Password' : 'Password';
+      document.getElementById('authBtn').textContent = mode === 'register' ? 'Create Account' : 'Login';
+      document.getElementById('authMsg').textContent = '';
+    }
+
+    async function submitAuth(e) {
+      e.preventDefault();
+      const msg = document.getElementById('authMsg');
+      msg.style.color = '#2563eb';
+      msg.textContent = 'Processing...';
+
+      const email = document.getElementById('authEmail').value.trim();
+      const password = document.getElementById('authPassword').value.trim();
+      const name = document.getElementById('regName').value.trim();
+
+      const endpoint = authMode === 'register' ? '/api/register' : '/api/login';
+      const payload = authMode === 'register' ? { name, email, password } : { email, password };
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          msg.style.color = '#dc2626';
+          msg.textContent = data.message || 'Action failed.';
+          return;
+        }
+
+        if (authMode === 'register') {
+          msg.style.color = '#16a34a';
+          msg.textContent = 'Account registered! You can now log in.';
+          setTimeout(() => setAuthMode('login'), 1000);
+        } else {
+          const activeName = data.name || email.split('@')[0];
+          localStorage.setItem('activeCandidateName', activeName);
+          localStorage.setItem('activeCandidateEmail', data.email);
+          applyUserData(activeName);
+          document.getElementById('authOverlay').style.display = 'none';
+        }
+      } catch (err) {
+        msg.style.color = '#dc2626';
+        msg.textContent = 'Backend server unavailable. Run "node server.js".';
+      }
+    }
+
+    function applyUserData(name) {
+      document.getElementById('userBadge').textContent = `Logged in: ${name}`;
+      document.getElementById('outCandidate').textContent = name;
+    }
+
+    function openAuthModal() {
+      localStorage.clear();
+      document.getElementById('authOverlay').style.display = 'flex';
+      setAuthMode('login');
+    }
+
+    function liveUpdate() {
+      document.getElementById('outTitle').textContent = document.getElementById('inTitle').value || 'Smart Project Submission Portal';
+      document.getElementById('outAbstract').textContent = document.getElementById('inAbstract').value || 'Project abstract scope...';
+      document.getElementById('outDesc').textContent = document.getElementById('inDesc').value || 'Architecture scope...';
+      document.getElementById('outSurvey').textContent = document.getElementById('inSurvey').value || 'Survey summary...';
+
+      // Synchronize dynamic module breakdown table in paper preview
+      const titleInputs = document.querySelectorAll('.mod-title-inp');
+      const descInputs = document.querySelectorAll('.mod-desc-inp');
+      const tbody = document.getElementById('outModuleRows');
+      tbody.innerHTML = '';
+
+      titleInputs.forEach((inp, idx) => {
+        const title = inp.value || `Module ${idx + 1}`;
+        const desc = descInputs[idx] ? descInputs[idx].value : '';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td><strong>${title}</strong></td>
+          <td>${desc}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function handleWordCount() {
+      const words = document.getElementById('inAbstract').value.trim().split(/\s+/).filter(Boolean).length;
+      document.getElementById('wordBadge').textContent = `Words: ${words}`;
+      document.getElementById('toneBadge').textContent = words > 80 ? 'Tone: Formal / Optimal' : 'Tone: Draft';
+    }
+
+    async function polishWithGemini(e) {
+      const btn = e.currentTarget;
+      const original = btn.innerHTML;
+      btn.innerHTML = '⏳ Polishing with Gemini...';
+      btn.disabled = true;
+
+      const title = document.getElementById('inTitle').value;
+      const rawAbstract = document.getElementById('inAbstract').value;
+
+      try {
+        const res = await fetch('/api/ai/polish-abstract', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, rawAbstract })
+        });
+        const data = await res.json();
+        if (data.polishedAbstract) {
+          document.getElementById('inAbstract').value = data.polishedAbstract;
+        }
+      } catch (err) {
+        document.getElementById('inAbstract').value = `This project presents the design and architectural implementation of "${title}". Addressing contemporary challenges in operational latency and automated data synthesis, the application integrates modular workflows with verified security mechanisms. Experimental evaluations demonstrate improved synchronization throughput, responsive form evaluation, and automated academic synopsis generation.`;
+      } finally {
+        handleWordCount();
+        liveUpdate();
+        btn.innerHTML = original;
+        btn.disabled = false;
+      }
+    }
+
+    async function suggestModulesWithGemini(e) {
+      const btn = e.currentTarget;
+      const original = btn.innerHTML;
+      btn.innerHTML = '⏳ Gemini is architecting...';
+      btn.disabled = true;
+
+      const title = document.getElementById('inTitle').value;
+      const description = document.getElementById('inDesc').value;
+
+      try {
+        const res = await fetch('/api/ai/suggest-modules', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, description })
+        });
+        const data = await res.json();
+        if (data.modules && Array.isArray(data.modules)) {
+          buildModuleInputs(data.modules);
+        }
+      } catch (err) {
+        buildModuleInputs([
+          { 
+            title: "Identity Authentication & Local Persistence Layer", 
+            desc: "Enforces salted cryptographic password hashing via bcryptjs, manages session states, and guarantees persistence using serialized flat-file JSON storage." 
+          },
+          { 
+            title: "Generative AI Prompt Orchestration Subsystem", 
+            desc: "Integrates Google Gemini to evaluate problem statements, polish academic abstracts, and dynamically architect project modules via structured JSON schemas." 
+          },
+          { 
+            title: "Client-Side Document Typesetting & Vector PDF Engine", 
+            desc: "Implements real-time bi-directional DOM synchronization with a virtual A4 layout and renders print-ready vector PDF documentation using client-side rasterization." 
+          }
+        ]);
+      } finally {
+        btn.innerHTML = original;
+        btn.disabled = false;
+      }
+    }
+
+    function downloadA4PDF() {
+      const element = document.getElementById('paperExport');
+      const title = (document.getElementById('inTitle').value.trim() || 'Project_Synopsis').replace(/[^a-z0-9]/gi, '_');
+
+      const opt = {
+        margin: 10,
+        filename: `${title}_Official_Synopsis.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+  </script>
+</body>
+</html>
